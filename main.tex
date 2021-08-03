@@ -403,12 +403,36 @@ In \boxed{\textbf{convolutional layer}}, multiple channels of feature maps were 
 \end{definition}
 
 \begin{definition}
+In \boxed{\textbf{Transposed convolutional layer}}\footnote{In machine learning community, we use the term ``transpose convolution'' and ``deconvolution'' interchangeably, while deconvolution is actually a mathematical operation that reverses the effect of convolution. Transposed convolution is basically still convolution. } \footnote{\url{https://distill.pub/2016/deconv-checkerboard/?utm_source=researcher_app&utm_medium=referral&utm_campaign=RESR_MRKT_Researcher_inbound}}, multiple channels of feature maps were extracted by sliding the trainable convolutional kernels across the input feature maps, but expand the output from input, with the special setting of stride and padding.
+\end{definition}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.35]{figure/deconv1-1.png}
+    \includegraphics[scale=0.4]{figure/deconv2-1.png}
+    \caption{Upsampling uses techniques such as padding, strides, and dilation to control the size of the output.}
+    \label{fig:my_label}
+\end{figure}
+
+\begin{definition}
 \boxed{\textbf{Max pooling layer}} is a way to reduce the image sizes, to provide an abstracted form of the representation, to reduce the computational cost and to promote spatial invariance of the network.
 \end{definition}
 
 \begin{definition}
 \boxed{\textbf{Fully-connected input layer}} takes the output of the previous layers, ``flattens'' them and turns them into a single vector that can be an input for the next stage.
 \end{definition}
+
+\begin{remark}
+It's easy to understand the fully-connected layer in the multilayer perceptron, as the it is neurons connecting neurons. For the convolutional neural network, the fully-connected layer would stretch the last output as a 1D vector, while the final output is also a 1D vector, then it's actually the same as the FCN in the MLP.
+\end{remark}
+
+\begin{remark}
+\textbf{Why CNN is neural network.} Intuitively, the CNN seems a little bit different from the typical multilayer perceptron(neural network) as the key part of it is sliding the convolution kernel over the whole image. However, if you regard the convolutional operation each time not as a small kernel dot products on only a part of the image, but the kernel has the same size of the image with rest of the region weights 0, then stretch both the image and the kernel into 1D vector. You will find the CNN is exactly the same as the MLP, in another form. 
+\end{remark}
+
+\begin{remark}
+When dealing with high-dimensional inputs such as images, as we saw above it is impractical to connect neurons to all neurons in the previous volume. Instead, we will connect each neuron to only a local region of the input volume. It is worth noting that the only difference between FC and CONV layers is that the neurons in the CONV layer are connected only to a local region in the input, and that many of the neurons in a CONV volume share parameters. However, the neurons in both layers still compute dot products, so their functional form is identical. Therefore, it turns out that it’s possible to convert between FC and CONV layers.\footnote{\url{https://cs231n.github.io/convolutional-networks/}}
+\end{remark}
 
 \begin{definition}
 \boxed{\textbf{Dropout layer}} is used to alleviate data overfitting.
@@ -421,27 +445,27 @@ In \boxed{\textbf{convolutional layer}}, multiple channels of feature maps were 
 \hline
 \multicolumn{1}{c}{\textbf{Layer}} & \multicolumn{1}{c}{\textbf{Size}} & \multicolumn{1}{c}{\textbf{Memory}} & \multicolumn{1}{c}{\textbf{Weights}} \\ \hline
 INPUT                              & {[}224x224x3{]}                   & 224*224*3=150K                      & 0                        \\
-CONV3-64                           & {[}224x224x64{]}                  & 224*224*64=3.2M                     & (3*3*3)*64               \\
-CONV3-64                           & {[}224x224x64{]}                  & 224*224*64=3.2M                     & (3*3*64)*64              \\
+CONV3-64                           & {[}224x224x64{]}                  & 224*224*64=3.2M                     & (3*3*3)*64+1               \\
+CONV3-64                           & {[}224x224x64{]}                  & 224*224*64=3.2M                     & (3*3*64)*64+1              \\
 POOL2                              & {[}112x112x64{]}                  & 112*112*64=800K                     & 0                        \\
-CONV3-128                          & {[}112x112x128{]}                 & 112*112*128=1.6M                    & (3*3*64)*128             \\
-CONV3-128                          & {[}112x112x128{]}                 & 112*112*128=1.6M                    & (3*3*128)*128            \\
+CONV3-128                          & {[}112x112x128{]}                 & 112*112*128=1.6M                    & (3*3*64)*128+1             \\
+CONV3-128                          & {[}112x112x128{]}                 & 112*112*128=1.6M                    & (3*3*128)*128+1            \\
 POOL2                              & {[}56x56x128{]}                   & 56*56*128=400K                      & 0                        \\
-CONV3-256                          & {[}56x56x256{]}                   & 56*56*256=800K                      & (3*3*128)*256            \\
-CONV3-256                          & {[}56x56x256{]}                   & 56*56*256=800K                      & (3*3*256)*256            \\
-CONV3-256                          & {[}56x56x256{]}                   & 56*56*256=800K                      & (3*3*256)*256            \\
+CONV3-256                          & {[}56x56x256{]}                   & 56*56*256=800K                      & (3*3*128)*256+1            \\
+CONV3-256                          & {[}56x56x256{]}                   & 56*56*256=800K                      & (3*3*256)*256+1            \\
+CONV3-256                          & {[}56x56x256{]}                   & 56*56*256=800K                      & (3*3*256)*256+1            \\
 POOL2                              & {[}28x28x256{]}                   & 28*28*256=200K                      & 0                        \\
-CONV3-512                          & {[}28x28x512{]}                   & 28*28*512=400K                      & (3*3*256)*512            \\
-CONV3-512                          & {[}28x28x512{]}                   & 28*28*512=400K                      & (3*3*256)*512            \\
-CONV3-512                          & {[}28x28x512{]}                   & 28*28*512=400K                      & (3*3*256)*512            \\
+CONV3-512                          & {[}28x28x512{]}                   & 28*28*512=400K                      & (3*3*256)*512+1            \\
+CONV3-512                          & {[}28x28x512{]}                   & 28*28*512=400K                      & (3*3*256)*512+1            \\
+CONV3-512                          & {[}28x28x512{]}                   & 28*28*512=400K                      & (3*3*256)*512+1            \\
 POOL2                              & {[}14x14x512{]}                   & 14*14*512=100K                      & 0                        \\
-CONV3-512                          & {[}14x14x512{]}                   & 14*14*512=100K                      & (3*3*512)*512            \\
-CONV3-512                          & {[}14x14x512{]}                   & 14*14*512=100K                      & (3*3*512)*512            \\
-CONV3-512                          & {[}14x14x512{]}                   & 14*14*512=100K                      & (3*3*512)*512            \\
+CONV3-512                          & {[}14x14x512{]}                   & 14*14*512=100K                      & (3*3*512)*512+1            \\
+CONV3-512                          & {[}14x14x512{]}                   & 14*14*512=100K                      & (3*3*512)*512+1            \\
+CONV3-512                          & {[}14x14x512{]}                   & 14*14*512=100K                      & (3*3*512)*512+1            \\
 POOL2                              & {[}7x7x512{]}                     & 7*7*512=25K                         & 0                        \\
-FC                                 & {[}1x1x4096{]}                    & 4096                                & 7*7*512*4096             \\
-FC                                 & {[}1x1x4096{]}                    & 4096                                & 4096*4096                \\
-FC                                 & {[}1x1x1000{]}                    & 1000                                & 4096*1000                \\ \hline
+FC                                 & {[}1x1x4096{]}                    & 4096                                & 7*7*512*4096+1             \\
+FC                                 & {[}1x1x4096{]}                    & 4096                                & 4096*4096+1                \\
+FC                                 & {[}1x1x1000{]}                    & 1000                                & 4096*1000+1                \\ \hline
 \end{tabular}
 \end{table}
 
@@ -524,6 +548,8 @@ where X and Y be two non-empty subsets of a metric space $(M,d)$.
    H(p)=-\sum _{x\in {\mathcal {X}}}{p (x)\log p (x)} \in[0,1]
 \end{equation*}
 
+\end{definition}
+
 \begin{remark}
 If entropy is closer to 1, means the distribution is of high level of disorder (low level of purity). If entropy is closer to 0, means the distribution is of low level of disorder (high level of purity).
 \end{remark}
@@ -540,7 +566,9 @@ which measures the distance between the distributions.
 Cross-entropy loss, or log loss, measures the performance of a classification model whose output is a \textbf{probability value between 0 and 1}. Cross-entropy loss increases as the predicted probability diverges from the actual label. 
 \end{remark}
 
-\end{definition}
+\begin{remark}
+If there are only two category, then it is called binary cross-entropy(BCE).
+\end{remark}
 
 \begin{example}
 As for the two discrete distributions below:
@@ -832,7 +860,72 @@ Activation functions have different mathematical properties:
     \item \textbf{Monotonic.} When the activation function is monotonic, the error surface associated with a single-layer model is guaranteed to be convex.
 \end{itemize}
 \end{remark}
-% \subsection{Data Augmentation}
+
+\subsection{Optimizer for gradient descent}
+\begin{definition}
+\boxed{\textbf{Momentum}} is a method that speed up the convergence by preserving the influence of the previous update direction on the next iteration to a certain degree.
+\begin{align*}
+    v_t&=\gamma v_{t-1}+\eta\nabla_{\theta}L(\theta)\\
+    \theta&=\theta-v_t
+\end{align*}
+where $\gamma$ is called momentum term and is typically set to 0.9.
+\end{definition}
+
+\begin{remark}
+If the current gradient is parallel to the previous speed $v_{t-1}$, the previous speed can speed up this search. If the current gradient is opposite to the previous speed $v_{t-1}$, the value of $v_t$ will have a deceleration effect on this search.
+\end{remark}
+
+\begin{definition}
+\boxed{\textbf{NAG(Nesterov Accelerated Gradient)}} is a method similar to the momentum, but calculates the gradient w.r.t. the approximate future position of parameter $\theta$, rather than the current parameter.
+\begin{align*}
+    v_t&=\gamma v_{t-1}+\eta\nabla_{\theta}L(\theta-\gamma v_{t-1})\\
+    \theta&=\theta-v_t
+\end{align*}
+where $\theta-\gamma v_{t-1}$ is the approximation of the next position of the parameters.
+\end{definition}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.4]{figure/nag.jpeg}
+    \caption{Nesterov momentum. Instead of calculating the gradient at the red circle, NAG looks ahead to the tip of the green arrow, which is slightly different from the original momentum method. This anticipatory update prevents us from going too fast and results in increased responsiveness.}
+    \label{fig:nag}
+\end{figure}
+
+\begin{definition}
+\boxed{\textbf{AdaGrad(Adaptive subgradient)}} is a method adjust the learning rate for every parameter $\theta$(not a vector by a scalar) at every time step $t$ dynamically based on the historical gradient in previous iterations:
+\begin{align*}
+    \theta_{t+1}=\theta_{t}-\frac{\eta}{\sqrt{\sum_i^t\|g_{i}\|_2^2+\epsilon}}\cdot g_{t}
+\end{align*}
+where $g_t$ is the gradient w.r.t. $\theta$ at step $t$, while $\epsilon$ is a smoothing term that avoids division by zero(usually on the order of \texttt{1e-8}).
+\end{definition}
+
+\begin{remark}
+Without the square root operation, the algorithm performs much worse.
+\end{remark}
+
+\begin{remark}
+ As the training time increases, the accumulated gradient will become larger and larger, making the learning rate tend to zero, resulting in ineffective parameter update.
+\end{remark}
+
+\begin{definition}
+\boxed{\textbf{AdaDelta}} or \boxed{\textbf{RMSprop}} is a method based on AdaGrad but solves radically diminishing learning rate by focusing only on the gradients in a window over a period(taking a decaying average of all past squared graidents in practice, the running average $E$):
+\begin{align*}
+    \theta_{t+1}&=\theta_{t}-\frac{\eta}{\sqrt{E(\|g\|^2_2)_t+\epsilon}}\cdot g_{t}\\
+    E_t(\|g\|^2_2)&=\gamma E_{t-1}(\|g_t\|^2_2)+(1-\gamma)\|g_t\|^2_2
+\end{align*}
+where $g_t$ is the gradient w.r.t. $\theta$ at step $t$, while $\epsilon$ is a smoothing term that avoids division by zero(usually on the order of \texttt{1e-8}).
+\end{definition}
+
+\begin{definition}
+\boxed{\textbf{Adam(Adaptive moment)}}\footnote{\url{https://arxiv.org/abs/1412.6980}} is a method combines adaptive learning rate and momentum methods:
+\begin{align*}
+    m_t&=\beta_1m_{t-1}+(1-\beta_1)g_t, \hat{m}_t=\frac{m_t}{1-\beta^t_1}\\
+    v_t&=\beta_2v_{t-1}+(1-\beta_2)\|g_t\|_2^2, \hat{v}_t=\frac{v_t}{1-\beta^t_2}\\
+    \theta_{t+1}&=\theta_t-\frac{\eta}{\sqrt{\hat{v}_t}+\epsilon}\hat{m}_t
+\end{align*}
+where $m_t$ and $v_t$ are exponentially decaying average of past gradient(the mean) and the average of past squared gradients(the uncentered variance) respectively. The default values are 0.9 for $\beta_1$, 0.999 for $\beta_2$ and $10^{-8}$ for $\epsilon$.
+\end{definition}
+
 \section{Applications}
 \subsection{Deep Learning for Solving Partial Differential Equation}
 \paragraph{Overview.} When we are talking about a deep neural network, the first thing that comes to my mind is that the input/output of the network can be a image. However, in this chapter, we will learn that the neural network can also be a ``image'', in view of the function/mapping nature of a network, whose input and output are the coordinates and pixel value, respectively.
